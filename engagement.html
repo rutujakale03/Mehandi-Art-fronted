@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engagement Mehandi Gallery | Rutuja Mehandi Art</title>
+<meta name="description" content="Engagement mehandi gallery by Rutuja — fine, traditional detailing for the proposal day. Amravati, Maharashtra.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=Lato:wght@300;400;700&family=Great+Vibes&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">Rutuja Mehandi Art</a>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+  <nav id="siteNav">
+    <a href="index.html#home">Home</a>
+    <a href="index.html#about">About</a>
+    <a href="index.html#designs">Designs</a>
+    <a href="index.html#price">Pricing</a>
+    <a href="index.html#reviews">Reviews</a>
+    <a href="index.html#contact">Contact</a>
+    <a href="admin.html" class="nav-admin-link">Admin</a>
+  </nav>
+</header>
+
+<section class="page-hero">
+  <a href="index.html#designs" class="breadcrumb">
+    <i class="fa-solid fa-arrow-left"></i> Back to Designs
+  </a>
+  <span class="sec-label">Gallery</span>
+  <h1>Engagement Mehandi</h1>
+  <p>Fine, traditional detailing for the proposal day — elegant enough to photograph beautifully.</p>
+</section>
+
+<section class="gallery-section">
+  <div class="gallery">
+    <figure><img src="images/img(3).jpg"  alt="Engagement mehandi design 1"  loading="lazy"></figure>
+    <figure><img src="images/img(2).jpg"  alt="Engagement mehandi design 2"  loading="lazy"></figure>
+    <figure><img src="images/img (1).jpg" alt="Engagement mehandi design 3"  loading="lazy"></figure>
+    <figure><img src="images/img(6).jpg"  alt="Engagement mehandi design 4"  loading="lazy"></figure>
+    <figure><img src="images/img26.jpg"   alt="Engagement mehandi design 5"  loading="lazy"></figure>
+    <figure><img src="images/img11.jpg"   alt="Engagement mehandi design 6"  loading="lazy"></figure>
+    <figure><img src="images/img12.jpg"   alt="Engagement mehandi design 7"  loading="lazy"></figure>
+    <figure><img src="images/img15.png"   alt="Engagement mehandi design 8"  loading="lazy"></figure>
+    <figure><img src="images/img13.jpg"   alt="Engagement mehandi design 9"  loading="lazy"></figure>
+    <figure><img src="images/img14.jpg"   alt="Engagement mehandi design 10" loading="lazy"></figure>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-brand">
+    <span class="logo">Rutuja Mehandi Art</span>
+    <p>Natural henna · Amravati, Maharashtra</p>
+  </div>
+  <nav class="footer-nav">
+    <a href="index.html#home">Home</a>
+    <a href="index.html#designs">Designs</a>
+    <a href="index.html#price">Pricing</a>
+    <a href="index.html#contact">Contact</a>
+  </nav>
+  <div class="footer-right">
+    <div class="footer-contact">
+      <a href="tel:+919209288732"><i class="fa-solid fa-phone"></i> +91 92092 88732</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 Rutuja Mehandi Art · All Rights Reserved</p>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<script>
+  const navToggle = document.getElementById('navToggle');
+  const siteNav   = document.getElementById('siteNav');
+  navToggle.addEventListener('click', () => {
+    const open = siteNav.classList.toggle('open');
+    navToggle.setAttribute('aria-expanded', open);
+  });
+
+  const lightbox    = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  document.querySelectorAll('.gallery figure img').forEach(img => {
+    img.addEventListener('click', () => {
+      lightboxImg.src = img.src;
+      lightboxImg.alt = img.alt;
+      lightbox.classList.add('open');
+    });
+  });
+  const closeLightbox = () => { lightbox.classList.remove('open'); lightboxImg.src = ''; };
+  document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard | Rutuja Mehandi Art</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+  :root {
+    --ink:       #5C1B1B;
+    --ink-deep:  #3D0F0F;
+    --marigold:  #D98A1F;
+    --cream:     #F5E8CF;
+    --cream-soft:#FBF3E3;
+    --cocoa:     #2B1810;
+    --blush:     #E3AF97;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI',sans-serif; background:var(--cream); color:var(--cocoa); }
+
+  /* LOGIN */
+  #loginScreen { display:flex; align-items:center; justify-content:center; min-height:100vh; background:var(--ink-deep); }
+  .login-box { background:var(--cream-soft); padding:48px 40px; border-radius:10px; width:360px; text-align:center; border-top:4px solid var(--marigold); box-shadow:0 20px 50px rgba(0,0,0,0.4); }
+  .login-box h2 { font-size:24px; color:var(--ink); margin-bottom:6px; }
+  .login-box p  { font-size:13.5px; color:#9c7a68; margin-bottom:28px; }
+  .login-box input { width:100%; padding:12px 16px; border:1px solid var(--blush); border-radius:6px; font-size:15px; margin-bottom:14px; outline:none; background:#fff; }
+  .login-box input:focus { border-color:var(--marigold); }
+  .login-box button { width:100%; padding:13px; background:var(--marigold); color:var(--ink-deep); border:none; border-radius:30px; font-size:15px; font-weight:600; cursor:pointer; transition:background .3s; }
+  .login-box button:hover { background:var(--ink); color:var(--cream); }
+  #loginError { color:#c62828; font-size:13px; margin-top:10px; min-height:18px; }
+
+  /* DASHBOARD */
+  #dashboard { display:none; }
+
+  .dash-header { background:var(--ink); color:var(--cream); padding:14px 4%; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+  .dash-header h1 { font-size:20px; font-weight:600; }
+  .dash-header span { font-size:12px; color:var(--blush); }
+  .header-right { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+
+  .tab-btn { background:rgba(255,255,255,0.1); border:1px solid rgba(245,232,207,0.25); color:var(--cream); padding:7px 16px; border-radius:20px; cursor:pointer; font-size:13.5px; transition:.3s; }
+  .tab-btn:hover, .tab-btn.active { background:var(--marigold); border-color:var(--marigold); color:var(--ink-deep); font-weight:600; }
+
+  .logout-btn { background:none; border:1px solid rgba(245,232,207,0.35); color:var(--cream); padding:7px 16px; border-radius:20px; cursor:pointer; font-size:13.5px; transition:.3s; }
+  .logout-btn:hover { background:var(--marigold); border-color:var(--marigold); color:var(--ink-deep); }
+
+  .dash-body { padding:28px 4%; }
+
+  /* STATS */
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:16px; margin-bottom:28px; }
+  .stat-card { background:#fff; border-radius:8px; padding:20px; border-left:4px solid var(--marigold); box-shadow:0 4px 14px rgba(61,15,15,0.08); }
+  .stat-card .num { font-size:32px; font-weight:700; color:var(--ink); line-height:1; }
+  .stat-card .label { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:#9c7a68; margin-top:6px; }
+
+  /* TABLE */
+  .table-controls { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px; }
+  .table-controls h2 { font-size:19px; color:var(--ink); }
+  .controls-right { display:flex; gap:8px; flex-wrap:wrap; }
+  .filter-select, .search-input { padding:8px 12px; border:1px solid var(--blush); border-radius:6px; font-size:14px; background:#fff; outline:none; }
+  .filter-select:focus, .search-input:focus { border-color:var(--marigold); }
+  .refresh-btn { padding:8px 16px; background:var(--ink); color:var(--cream); border:none; border-radius:6px; font-size:14px; cursor:pointer; transition:.3s; }
+  .refresh-btn:hover { background:var(--marigold); color:var(--ink-deep); }
+
+  .table-wrap { background:#fff; border-radius:8px; box-shadow:0 4px 20px rgba(61,15,15,0.08); overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; min-width:700px; }
+  thead { background:var(--ink); color:var(--cream); }
+  thead th { padding:13px 14px; text-align:left; font-size:12.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; }
+  tbody tr { border-bottom:1px solid #f0e6d6; transition:background .2s; }
+  tbody tr:last-child { border-bottom:none; }
+  tbody tr:hover { background:#fdf6ec; }
+  tbody td { padding:13px 14px; font-size:14px; vertical-align:middle; }
+  .td-name { font-weight:600; color:var(--ink); }
+  .td-phone a { color:var(--cocoa); text-decoration:none; }
+  .td-phone a:hover { color:var(--marigold); }
+  .empty-row td { text-align:center; padding:50px; color:#9c7a68; font-size:15px; }
+
+  .status-select { padding:5px 10px; border:1px solid var(--blush); border-radius:6px; font-size:13px; background:#fff; cursor:pointer; outline:none; }
+  .status-select:focus { border-color:var(--marigold); }
+
+  /* ACTION BUTTONS */
+  .action-btn { padding:5px 12px; border:none; border-radius:4px; cursor:pointer; font-size:12.5px; font-weight:600; transition:.2s; }
+  .btn-approve { background:#d1e7dd; color:#0f5132; }
+  .btn-approve:hover { background:#badbcc; }
+  .btn-delete  { background:#f8d7da; color:#842029; }
+  .btn-delete:hover  { background:#f1aeb5; }
+
+  /* CALENDAR */
+  .cal-header { display:flex; align-items:center; justify-content:center; gap:20px; margin-bottom:20px; }
+  .cal-header h2 { font-size:20px; color:var(--ink); min-width:200px; text-align:center; }
+  .cal-nav { background:var(--ink); color:var(--cream); border:none; width:36px; height:36px; border-radius:50%; font-size:22px; cursor:pointer; transition:.3s; display:flex; align-items:center; justify-content:center; }
+  .cal-nav:hover { background:var(--marigold); color:var(--ink-deep); }
+
+  .cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; background:#fff; padding:20px; border-radius:10px; box-shadow:0 4px 20px rgba(61,15,15,0.08); }
+  .cal-day-name { text-align:center; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:#9c7a68; padding:6px 0; }
+  .cal-day { min-height:72px; border:1px solid #f0e6d6; border-radius:6px; padding:6px; font-size:13px; color:var(--cocoa); position:relative; background:#fafafa; }
+  .cal-day.today { border-color:var(--marigold); background:#fffbf2; }
+  .cal-day.empty { background:transparent; border:none; }
+  .cal-day-num { font-weight:600; font-size:13px; margin-bottom:4px; }
+  .cal-event { font-size:11px; border-radius:3px; padding:2px 5px; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:default; }
+  .cal-event.pending   { background:#fff3cd; color:#856404; }
+  .cal-event.confirmed { background:#d1e7dd; color:#0f5132; }
+  .cal-event.completed { background:#cfe2ff; color:#084298; }
+  .cal-event.cancelled { background:#f8d7da; color:#842029; }
+
+  .cal-legend { display:flex; gap:18px; justify-content:center; margin-top:14px; font-size:13px; flex-wrap:wrap; }
+  .dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:5px; }
+  .dot-pending   { background:#D98A1F; }
+  .dot-confirmed { background:#0f5132; }
+  .dot-completed { background:#084298; }
+
+  /* TOAST */
+  #toast { position:fixed; bottom:24px; right:24px; background:var(--ink); color:var(--cream); padding:13px 20px; border-radius:8px; font-size:14px; box-shadow:0 8px 24px rgba(0,0,0,0.25); display:none; z-index:999; border-left:4px solid var(--marigold); }
+  #toast.show { display:block; }
+
+  @media(max-width:600px) {
+    .dash-body { padding:18px 3%; }
+    .stats { grid-template-columns:1fr 1fr; }
+    .cal-day { min-height:52px; }
+    .cal-event { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <h2>Admin Login</h2>
+    <p>Rutuja Mehandi Art — Dashboard</p>
+    <input type="text"     id="adminUser" placeholder="Username" autocomplete="username">
+    <input type="password" id="adminPass" placeholder="Password" autocomplete="current-password">
+    <button onclick="adminLogin()">Login</button>
+    <p id="loginError"></p>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+
+  <div class="dash-header">
+    <div>
+      <h1>Rutuja Mehandi Art</h1>
+      <span>Admin Dashboard</span>
+    </div>
+    <div class="header-right">
+      <button class="tab-btn active" id="tab-btn-bookings" onclick="switchTab('bookings')">📋 Bookings</button>
+      <button class="tab-btn"        id="tab-btn-calendar" onclick="switchTab('calendar')">🗓️ Calendar</button>
+      <button class="tab-btn"        id="tab-btn-reviews"  onclick="switchTab('reviews')">⭐ Reviews</button>
+      <button class="logout-btn" onclick="adminLogout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="dash-body">
+
+    <!-- ── BOOKINGS TAB ── -->
+    <div id="tab-bookings">
+      <div class="stats">
+        <div class="stat-card"><div class="num" id="statTotal">0</div><div class="label">Total</div></div>
+        <div class="stat-card"><div class="num" id="statPending">0</div><div class="label">Pending</div></div>
+        <div class="stat-card"><div class="num" id="statConfirmed">0</div><div class="label">Confirmed</div></div>
+        <div class="stat-card"><div class="num" id="statCompleted">0</div><div class="label">Completed</div></div>
+      </div>
+
+      <div class="table-controls">
+        <h2>All Appointments</h2>
+        <div class="controls-right">
+          <input type="text" class="search-input" id="searchInput" placeholder="Search name / phone..." oninput="filterTable()">
+          <select class="filter-select" id="statusFilter" onchange="filterTable()">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <button class="refresh-btn" onclick="loadAppointments()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Name</th><th>Phone</th><th>Design</th><th>Event Date</th><th>Hands</th><th>Message</th><th>Status</th><th>Booked On</th></tr>
+          </thead>
+          <tbody id="bookingsBody">
+            <tr class="empty-row"><td colspan="9">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── CALENDAR TAB ── -->
+    <div id="tab-calendar" style="display:none;">
+      <div class="cal-header">
+        <button class="cal-nav" onclick="changeMonth(-1)">&#8249;</button>
+        <h2 id="calTitle"></h2>
+        <button class="cal-nav" onclick="changeMonth(1)">&#8250;</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-legend">
+        <span><span class="dot dot-pending"></span>Pending</span>
+        <span><span class="dot dot-confirmed"></span>Confirmed</span>
+        <span><span class="dot dot-completed"></span>Completed</span>
+      </div>
+    </div>
+
+    <!-- ── REVIEWS TAB ── -->
+    <div id="tab-reviews" style="display:none;">
+      <div class="table-controls">
+        <h2>Customer Reviews</h2>
+        <button class="refresh-btn" onclick="loadAdminReviews()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Name</th><th>Rating</th><th>Design</th><th>Comment</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="reviewsBody">
+            <tr class="empty-row"><td colspan="8">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const API_BASE   = 'https://mehandi-art.onrender.com/api';
+
+  let allAppointments = [];
+  let calYear, calMonth;
+
+  // ── LOGIN with JWT ────────────────────────────────────────────────────────
+  async function adminLogin() {
+    const user  = document.getElementById('adminUser').value.trim();
+    const pass  = document.getElementById('adminPass').value.trim();
+    const errEl = document.getElementById('loginError');
+    errEl.textContent = '';
+
+    try {
+      const res  = await fetch(`${API_BASE}/auth/login`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ username: user, password: pass })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        sessionStorage.setItem('adminToken', data.token);
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('dashboard').style.display   = 'block';
+        loadAppointments();
+      } else {
+        errEl.textContent = '❌ ' + (data.error || 'Invalid credentials.');
+      }
+    } catch (err) {
+      errEl.textContent = '❌ Cannot reach server.';
+    }
+  }
+
+  function adminLogout() {
+    sessionStorage.removeItem('adminToken');
+    location.reload();
+  }
+
+  // Helper — get auth headers
+  function authHeaders() {
+    const token = sessionStorage.getItem('adminToken');
+    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && document.getElementById('loginScreen').style.display !== 'none') adminLogin();
+  });
+
+  window.addEventListener('load', () => {
+    const token = sessionStorage.getItem('adminToken');
+    if (token) {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboard').style.display   = 'block';
+      loadAppointments();
+    }
+  });
+
+  // ── TABS ──────────────────────────────────────────────────────────────
+  function switchTab(name) {
+    ['bookings','calendar','reviews'].forEach(t => {
+      document.getElementById(`tab-${t}`).style.display = (t === name) ? 'block' : 'none';
+      document.getElementById(`tab-btn-${t}`).classList.toggle('active', t === name);
+    });
+    if (name === 'calendar') renderCalendar();
+    if (name === 'reviews')  loadAdminReviews();
+  }
+
+  // ── LOAD APPOINTMENTS ─────────────────────────────────────────────────
+  async function loadAppointments() {
+    const tbody = document.getElementById('bookingsBody');
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="9">Loading...</td></tr>';
+    try {
+      const res  = await fetch(`${API_BASE}/appointments`, { headers: authHeaders() });
+      const data = await res.json();
+      if (data.success) {
+        allAppointments = data.data;
+        updateStats(allAppointments);
+        renderTable(allAppointments);
+      } else if (res.status === 401 || res.status === 403) {
+        sessionStorage.removeItem('adminToken');
+        location.reload();
+      }
+    } catch (err) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="9">❌ Cannot reach server.</td></tr>';
+    }
+  }
+
+  function renderTable(list) {
+    const tbody = document.getElementById('bookingsBody');
+    if (list.length === 0) { tbody.innerHTML = '<tr class="empty-row"><td colspan="9">No bookings found.</td></tr>'; return; }
+    tbody.innerHTML = list.map((a, i) => `
+      <tr>
+        <td>${i+1}</td>
+        <td class="td-name">${esc(a.name)}</td>
+        <td class="td-phone"><a href="tel:${esc(a.phone)}">${esc(a.phone)}</a></td>
+        <td>${esc(a.design_type)}</td>
+        <td>${formatDate(a.event_date)}</td>
+        <td style="text-align:center">${a.num_hands}</td>
+        <td style="max-width:160px;font-size:13px;color:#6b5346">${esc(a.message||'—')}</td>
+        <td>
+          <select class="status-select" onchange="updateStatus(${a.id},this.value)">
+            <option value="pending"   ${a.status==='pending'   ?'selected':''}>Pending</option>
+            <option value="confirmed" ${a.status==='confirmed' ?'selected':''}>Confirmed</option>
+            <option value="completed" ${a.status==='completed' ?'selected':''}>Completed</option>
+            <option value="cancelled" ${a.status==='cancelled' ?'selected':''}>Cancelled</option>
+          </select>
+        </td>
+        <td style="font-size:12.5px">${formatDateTime(a.created_at)}</td>
+      </tr>`).join('');
+  }
+
+  async function updateStatus(id, status) {
+    try {
+      const res  = await fetch(`${API_BASE}/appointments/${id}`, {
+        method:'PUT', headers: authHeaders(), body:JSON.stringify({status})
+      });
+      const data = await res.json();
+      if (data.success) {
+        const item = allAppointments.find(a => a.id === id);
+        if (item) item.status = status;
+        updateStats(allAppointments);
+        showToast(`✅ Status updated to "${status}"`);
+      } else if (res.status === 401 || res.status === 403) {
+        showToast('❌ Session expired — please log in again.');
+        sessionStorage.removeItem('adminToken');
+        location.reload();
+      } else {
+        showToast('❌ ' + (data.error || 'Failed to update status.'));
+      }
+    } catch (err) { showToast('❌ Failed to update status.'); }
+  }
+
+  function updateStats(list) {
+    document.getElementById('statTotal').textContent     = list.length;
+    document.getElementById('statPending').textContent   = list.filter(a=>a.status==='pending').length;
+    document.getElementById('statConfirmed').textContent = list.filter(a=>a.status==='confirmed').length;
+    document.getElementById('statCompleted').textContent = list.filter(a=>a.status==='completed').length;
+  }
+
+  function filterTable() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const status = document.getElementById('statusFilter').value;
+    const filtered = allAppointments.filter(a => {
+      const ms = !search || a.name.toLowerCase().includes(search) || a.phone.includes(search);
+      const mst = !status || a.status === status;
+      return ms && mst;
+    });
+    renderTable(filtered);
+  }
+
+  // ── CALENDAR ──────────────────────────────────────────────────────────
+  function renderCalendar() {
+    const now = new Date();
+    if (!calYear)  calYear  = now.getFullYear();
+    if (calMonth === undefined) calMonth = now.getMonth();
+
+    const title = new Date(calYear, calMonth, 1)
+      .toLocaleDateString('en-IN', { month:'long', year:'numeric' });
+    document.getElementById('calTitle').textContent = title;
+
+    const firstDay  = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+    const todayStr  = now.toISOString().slice(0,10);
+
+    const grid = document.getElementById('calGrid');
+    grid.innerHTML = '';
+
+    // Day headers
+    ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
+      grid.innerHTML += `<div class="cal-day-name">${d}</div>`;
+    });
+
+    // Empty cells before first day
+    for (let i = 0; i < firstDay; i++) {
+      grid.innerHTML += `<div class="cal-day empty"></div>`;
+    }
+
+    // Build date → appointments map (slice to YYYY-MM-DD, no timezone shift)
+    const apptMap = {};
+    allAppointments.forEach(a => {
+      const d = a.event_date ? String(a.event_date).slice(0, 10) : null;
+      if (d) { if (!apptMap[d]) apptMap[d] = []; apptMap[d].push(a); }
+    });
+
+    // Days
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isToday = dateStr === todayStr;
+      const events  = apptMap[dateStr] || [];
+
+      let evHtml = events.slice(0,3).map(a =>
+        `<div class="cal-event ${a.status}" title="${esc(a.name)} — ${esc(a.design_type)}">${esc(a.name)}</div>`
+      ).join('');
+      if (events.length > 3) evHtml += `<div style="font-size:10px;color:#9c7a68">+${events.length-3} more</div>`;
+
+      grid.innerHTML += `
+        <div class="cal-day${isToday?' today':''}">
+          <div class="cal-day-num">${d}</div>
+          ${evHtml}
+        </div>`;
+    }
+  }
+
+  function changeMonth(dir) {
+    calMonth += dir;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    if (calMonth < 0)  { calMonth = 11; calYear--; }
+    renderCalendar();
+  }
+
+  // ── REVIEWS ───────────────────────────────────────────────────────────
+  async function loadAdminReviews() {
+    const tbody = document.getElementById('reviewsBody');
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="8">Loading...</td></tr>';
+    try {
+      const res  = await fetch(`${API_BASE}/reviews/all`, { headers: authHeaders() });
+      const data = await res.json();
+      if (data.success) renderReviews(data.data);
+    } catch (err) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="8">❌ Cannot reach server.</td></tr>';
+    }
+  }
+
+  function renderReviews(list) {
+    const tbody = document.getElementById('reviewsBody');
+    if (list.length === 0) { tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No reviews yet.</td></tr>'; return; }
+    tbody.innerHTML = list.map((r,i) => `
+      <tr>
+        <td>${i+1}</td>
+        <td class="td-name">${esc(r.name)}</td>
+        <td>${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</td>
+        <td style="font-size:13px">${esc(r.design_type||'—')}</td>
+        <td style="max-width:200px;font-size:13px">${esc(r.comment)}</td>
+        <td>${r.approved ? '<span style="color:#0f5132;font-weight:600">✅ Approved</span>' : '<span style="color:#856404">⏳ Pending</span>'}</td>
+        <td style="font-size:12.5px">${formatDate(r.created_at)}</td>
+        <td style="display:flex;gap:6px;">
+          ${!r.approved ? `<button class="action-btn btn-approve" onclick="approveReview(${r.id})">Approve</button>` : ''}
+          <button class="action-btn btn-delete" onclick="deleteReview(${r.id})">Delete</button>
+        </td>
+      </tr>`).join('');
+  }
+
+  async function approveReview(id) {
+    try {
+      const res = await fetch(`${API_BASE}/reviews/${id}/approve`, { method:'PUT', headers: authHeaders() });
+      const data = await res.json();
+      if (data.success) { showToast('✅ Review approved!'); loadAdminReviews(); }
+      else if (res.status === 401 || res.status === 403) {
+        showToast('❌ Session expired — please log in again.');
+        sessionStorage.removeItem('adminToken');
+        location.reload();
+      } else { showToast('❌ ' + (data.error || 'Failed.')); }
+    } catch (err) { showToast('❌ Failed.'); }
+  }
+
+  async function deleteReview(id) {
+    if (!confirm('Delete this review?')) return;
+    try {
+      const res = await fetch(`${API_BASE}/reviews/${id}`, { method:'DELETE', headers: authHeaders() });
+      const data = await res.json();
+      if (data.success) { showToast('🗑️ Review deleted.'); loadAdminReviews(); }
+      else if (res.status === 401 || res.status === 403) {
+        showToast('❌ Session expired — please log in again.');
+        sessionStorage.removeItem('adminToken');
+        location.reload();
+      } else { showToast('❌ ' + (data.error || 'Failed.')); }
+    } catch (err) { showToast('❌ Failed.'); }
+  }
+
+  // ── HELPERS ───────────────────────────────────────────────────────────
+  function esc(str) {
+    return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function formatDate(d) {
+    if (!d) return '—';
+    // Parse as local date to avoid timezone shift (YYYY-MM-DD → no UTC conversion)
+    const parts = String(d).slice(0, 10).split('-');
+    const local = new Date(parts[0], parts[1] - 1, parts[2]);
+    return local.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+  }
+  function formatDateTime(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  }
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 3000);
+  }
+</script>
+</body>
+</html>
