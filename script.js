@@ -1,6 +1,6 @@
 // script.js — Booking modal, WhatsApp notify, Reviews, Calendar
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = 'https://mehandi-art.onrender.com/api';
 
 // ── Open / Close booking modal ────────────────────────────────────────────────
 function bookNow() {
