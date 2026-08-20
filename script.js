@@ -11,7 +11,13 @@ function bookNow() {
 function closeModal() {
   document.getElementById('bookingModal').classList.remove('open');
   document.body.style.overflow = '';
-  document.getElementById('bookingForm').reset();
+  const form = document.getElementById('bookingForm');
+  form.reset();
+  // Restore required attributes for next booking
+  document.getElementById('bk_name').setAttribute('required', '');
+  document.getElementById('bk_phone').setAttribute('required', '');
+  document.getElementById('bk_date').setAttribute('required', '');
+  document.getElementById('bk_design').setAttribute('required', '');
   document.getElementById('formMsg').textContent = '';
   document.getElementById('formMsg').className = 'form-msg';
 }
@@ -106,9 +112,13 @@ async function handleBookingSubmit(e) {
     if (response.ok && result.success) {
       msgEl.textContent = '✅ Appointment booked! We will call you to confirm.';
       msgEl.className   = 'form-msg success';
-      document.getElementById('bookingForm').reset();
 
-      // Open WhatsApp to notify admin — fires after a short delay so user sees the success message
+      // Disable all inputs before reset to prevent browser validation firing on empty required fields
+      const form = document.getElementById('bookingForm');
+      form.querySelectorAll('input, select, textarea').forEach(el => el.removeAttribute('required'));
+      form.reset();
+
+      // Open WhatsApp to notify admin
       if (result.whatsappUrl) {
         setTimeout(() => window.open(result.whatsappUrl, '_blank'), 800);
       }
