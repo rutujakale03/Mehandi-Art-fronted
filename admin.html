@@ -178,7 +178,7 @@
       <div class="table-wrap">
         <table>
           <thead>
-            <tr><th>#</th><th>Name</th><th>Phone</th><th>Design</th><th>Event Date</th><th>Hands</th><th>Message</th><th>Status</th><th>Booked On</th></tr>
+            <tr><th>#</th><th>Name</th><th>Phone</th><th>Design</th><th>Event Date</th><th>Hands</th><th>Message</th><th>Status</th><th>Booked On</th><th>Action</th></tr>
           </thead>
           <tbody id="bookingsBody">
             <tr class="empty-row"><td colspan="9">Loading...</td></tr>
@@ -334,6 +334,7 @@
           </select>
         </td>
         <td style="font-size:12.5px">${formatDateTime(a.created_at)}</td>
+        <td><button class="action-btn btn-delete" onclick="deleteAppointment(${a.id})">🗑 Delete</button></td>
       </tr>`).join('');
   }
 
@@ -356,6 +357,28 @@
         showToast('❌ ' + (data.error || 'Failed to update status.'));
       }
     } catch (err) { showToast('❌ Failed to update status.'); }
+  }
+
+  async function deleteAppointment(id) {
+    if (!confirm('Delete this appointment? This cannot be undone.')) return;
+    try {
+      const res  = await fetch(`${API_BASE}/appointments/${id}`, {
+        method: 'DELETE', headers: authHeaders()
+      });
+      const data = await res.json();
+      if (data.success) {
+        allAppointments = allAppointments.filter(a => a.id !== id);
+        updateStats(allAppointments);
+        filterTable();
+        showToast('🗑️ Appointment deleted.');
+      } else if (res.status === 401 || res.status === 403) {
+        showToast('❌ Session expired — please log in again.');
+        sessionStorage.removeItem('adminToken');
+        location.reload();
+      } else {
+        showToast('❌ ' + (data.error || 'Failed to delete.'));
+      }
+    } catch (err) { showToast('❌ Failed to delete.'); }
   }
 
   function updateStats(list) {
