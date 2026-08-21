@@ -113,15 +113,31 @@ async function handleBookingSubmit(e) {
       msgEl.textContent = '✅ Appointment booked! We will call you to confirm.';
       msgEl.className   = 'form-msg success';
 
+      // Build WhatsApp URL on frontend and open via link click (avoids popup blockers)
+      const waMsg =
+        `🌿 *New Mehandi Booking!*\n\n` +
+        `👤 *Name:* ${payload.name}\n` +
+        `📱 *Phone:* ${payload.phone}\n` +
+        `📅 *Event Date:* ${payload.event_date}\n` +
+        `🎨 *Design:* ${payload.design_type}\n` +
+        `🖐 *Hands:* ${payload.num_hands}\n` +
+        (payload.email  ? `📧 *Email:* ${payload.email}\n`   : '') +
+        (payload.message ? `📝 *Note:* ${payload.message}\n` : '') +
+        `\n_Please confirm the appointment._`;
+
+      const waUrl = `https://wa.me/919209288732?text=${encodeURIComponent(waMsg)}`;
+      const waLink = document.createElement('a');
+      waLink.href = waUrl;
+      waLink.target = '_blank';
+      waLink.rel = 'noopener';
+      document.body.appendChild(waLink);
+      waLink.click();
+      document.body.removeChild(waLink);
+
       // Disable all inputs before reset to prevent browser validation firing on empty required fields
       const form = document.getElementById('bookingForm');
       form.querySelectorAll('input, select, textarea').forEach(el => el.removeAttribute('required'));
       form.reset();
-
-      // Open WhatsApp to notify admin
-      if (result.whatsappUrl) {
-        setTimeout(() => window.open(result.whatsappUrl, '_blank'), 800);
-      }
 
       setTimeout(closeModal, 3000);
     } else {
